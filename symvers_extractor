@@ -1,0 +1,36 @@
+#!/usr/bin/env python3
+# -*- encoding: Utf-8 -*-
+
+from struct import unpack_from
+from argparse import ArgumentParser
+from vmlinux_to_elf import kallsyms_finder
+from sys import stdout
+import logging
+
+if __name__ == '__main__':
+    logging.basicConfig(stream=stdout, level=logging.INFO, format='%(message)s')
+    args = ArgumentParser(description="Find the kernel's embedded symbol table from a raw " +
+                                      "or stripped ELF kernel file, and print these to the standard output with their " +
+                                      "addresses")
+    args.add_argument('input_file', help="Path to the kernel file to extract symvers from")
+    args.add_argument('--bit-size', help='Force overriding the input kernel ' +
+                                         'bit size, providing 32 or 64 bit (rather than auto-detect)', type=int)
+    args = args.parse_args()
+    with open(args.input_file, 'rb') as kernel_bin:
+        try:
+            kallsyms = kallsyms_finder.KallsymsFinder(kallsyms_finder.obtain_raw_kernel_from_file(kernel_bin.read()), args.bit_size)
+        except kallsyms_finder.ArchitectureGuessError:
+            exit('[!] The architecture of your kernel could not be guessed ' +
+                 'successfully. Please specify the --bit-size argument manually ' +
+                 '(use --help for its precise specification).')
+        symbols = []
+        kcrctab_start = 0
+        for symbol in kallsyms.symbols:
+            if symbol.name.startswith("__ksymtab_"):
+                symbols.append(symbol)
+            if symbol.name == "__start___kcrctab":
+                kcrctab_start = symbol.virtual_address - kallsyms.relative_base_address
+
+        for sid, symbol in enumerate(symbols):
+            crc, = unpack_from("<I", kallsyms.kernel_img, kcrctab_start + sid * 4)
+            print("%s %s" % (hex(crc), symbol.name.replace("__ksymtab_", "")))
