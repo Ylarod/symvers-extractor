@@ -4,7 +4,7 @@ from distutils.core import setup
 
 setup(name='symvers-extractor',
       version='1.0',
-      description='A tool to extractor symvers from a binary kernel',
+      description='A tool to extract symvers from a binary kernel',
       author='Ylarod',
       author_email='',
       url='https://github.com/Ylarod/symvers-extractor',
