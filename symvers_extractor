@@ -9,9 +9,9 @@ import logging
 
 if __name__ == '__main__':
     logging.basicConfig(stream=stdout, level=logging.INFO, format='%(message)s')
-    args = ArgumentParser(description="Find the kernel's embedded symbol table from a raw " +
+    args = ArgumentParser(description="Find the kernel's Module.symvers from a raw " +
                                       "or stripped ELF kernel file, and print these to the standard output with their " +
-                                      "addresses")
+                                      "crc")
     args.add_argument('input_file', help="Path to the kernel file to extract symvers from")
     args.add_argument('--bit-size', help='Force overriding the input kernel ' +
                                          'bit size, providing 32 or 64 bit (rather than auto-detect)', type=int)
