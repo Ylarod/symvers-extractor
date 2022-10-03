@@ -1,6 +1,6 @@
 # symvers-extractor
 
-A tool to extractor symvers from a binary kernel
+A tool to extract symvers from a binary kernel
 
 ## Install
 
