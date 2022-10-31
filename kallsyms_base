@@ -1,0 +1,26 @@
+#!/usr/bin/env python3
+# -*- encoding: Utf-8 -*-
+
+from argparse import ArgumentParser
+from sys import stdout
+import logging
+
+if __name__ == '__main__':
+    logging.basicConfig(stream=stdout, level=logging.INFO, format='%(message)s')
+    args = ArgumentParser(description="make kallsyms starting with specified base")
+    args.add_argument('input_file', help="Path to the kallsyms.txt")
+    args.add_argument('--base', help='base addr', type=int, default=-1)
+    args = args.parse_args()
+    with open(args.input_file, 'r') as kallsyms:
+        base = args.base
+        for line in kallsyms.readlines():
+            if base == -1:
+                if line.startswith("ff"):
+                    base = "0x" + line.split(" ")[0]
+                    base = int(base, 16)
+                    print(hex(base) + " " + line.split(" ")[1] + line.split(" ")[2])
+                else:
+                    continue
+            # now we get the base
+            splits = line.split(" ")
+            print(hex(int("0x" + splits[0], 16) - base) + " " + splits[1] + " " + line.split(" ")[2], end="")
